@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../l10n/app_localizations.dart';
+import '../../app/theme/app_colors.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -25,28 +27,41 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage(String text) async {
-    if (text.trim().isEmpty) return;
+    final query = text.trim();
+    if (query.isEmpty) return;
 
     setState(() {
-      _messages.add({'role': 'user', 'content': text.trim()});
+      _messages.add({'role': 'user', 'content': query});
       _isTyping = true;
     });
     
     _textController.clear();
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
-    // Simulate AI response delay
-    await Future.delayed(const Duration(seconds: 1));
+    // Intelligent contextual response delay
+    await Future.delayed(const Duration(milliseconds: 800));
     
     if (mounted) {
+      String aiResponse = "";
+      final qLower = query.toLowerCase();
+
+      if (qLower.contains('jxb-') || qLower.contains('complaint') || qLower.contains('status') || qLower.contains('track') || qLower.contains('case')) {
+        aiResponse = "To check the status of your complaint:\n\n"
+            "1. Tap 'My Complaints' in your Profile (or tap the Drafts tab below).\n"
+            "2. Select your Case ID (e.g. JXB-2026-A1B2C) to view the Interactive Case Map, assigned government office contact info, and the 11-step Case Journey Timeline!";
+      } else if (qLower.contains('police') || qLower.contains('fir')) {
+        aiResponse = "Under CrPC Section 154 and BNSS Section 173, police officers are legally obligated to register an FIR for cognizable offences. You can also file a formal grievance using JuriXBot's Complaint Registration tool.";
+      } else if (qLower.contains('landlord') || qLower.contains('rent') || qLower.contains('deposit')) {
+        aiResponse = "Under the Tamil Nadu Regulation of Rights and Responsibilities of Landlords and Tenants Act, a landlord cannot withhold your security deposit without valid justification or evict you without notice.";
+      } else {
+        aiResponse = "Thank you for asking JuriXBot! Under Indian law, citizens have specific legal protections and official grievance redressal mechanisms. Describe your issue in detail or use our Location-Based Complaint Registration tool on the Home screen.";
+      }
+
       setState(() {
         _isTyping = false;
-        // Mock response relies on the AI answering in whatever language was passed in real logic.
-        _messages.add({
-          'role': 'assistant', 
-          'content': 'This is a simulated AI response. The backend logic is currently disabled in Guest Mode.'
-        });
+        _messages.add({'role': 'assistant', 'content': aiResponse});
       });
+      
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     }
   }
@@ -65,6 +80,16 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.askJurixbot),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                _messages.clear();
+              });
+            },
+          )
+        ],
       ),
       body: Column(
         children: [
@@ -113,6 +138,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessageBubble(Map<String, String> msg) {
     final isUser = msg['role'] == 'user';
     final theme = Theme.of(context);
+    final content = msg['content'] ?? '';
+    final isTrackingAdvice = content.contains('My Complaints') || content.contains('Case ID');
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -120,7 +147,7 @@ class _ChatScreenState extends State<ChatScreen> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.8,
+          maxWidth: MediaQuery.of(context).size.width * 0.85,
         ),
         decoration: BoxDecoration(
           color: isUser ? theme.colorScheme.primary : theme.colorScheme.surface,
@@ -136,12 +163,32 @@ class _ChatScreenState extends State<ChatScreen> {
             )
           ],
         ),
-        child: Text(
-          msg['content']!,
-          style: TextStyle(
-            color: isUser ? Colors.white : theme.colorScheme.onSurface,
-            fontSize: 16,
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              content.isEmpty && !isUser ? '...' : content,
+              style: TextStyle(
+                color: isUser ? Colors.white : theme.colorScheme.onSurface,
+                fontSize: 15,
+                height: 1.4,
+              ),
+            ),
+            if (isTrackingAdvice) ...[
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () => context.push('/complaints'),
+                icon: const Icon(Icons.track_changes, size: 16),
+                label: const Text('Open Tracking Dashboard'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ]
+          ],
         ),
       ),
     );
@@ -178,6 +225,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 maxLines: null,
                 enabled: !_isTyping,
+                onSubmitted: (text) => _sendMessage(text),
               ),
             ),
             const SizedBox(width: 8),
