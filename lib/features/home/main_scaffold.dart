@@ -17,7 +17,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
     if (location.startsWith('/home')) return 0;
     if (location.startsWith('/chat')) return 1;
     if (location.startsWith('/explore')) return 2;
-    if (location.startsWith('/draft')) return 3;
+    if (location.startsWith('/complaints')) return 3;
     if (location.startsWith('/profile')) return 4;
     return 0;
   }
@@ -34,7 +34,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
         context.go('/explore');
         break;
       case 3:
-        context.go('/draft');
+        context.go('/complaints');
         break;
       case 4:
         context.go('/profile');

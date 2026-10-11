@@ -14,8 +14,14 @@ bool get _isAndroid {
 class DioClient {
   static String get _baseUrl {
     if (!kDebugMode) return 'https://api.jurixbot.com/api/v1';
-    // Use 10.0.2.2 for Android emulator, localhost for Windows/Web/Mac
-    if (_isAndroid) return 'http://10.0.2.2:8000/api/v1';
+    
+    // Check if we are running on a real Android device (not emulator, not web)
+    if (_isAndroid) {
+      // 172.20.10.8 is the specific IP address of your Windows laptop hosting the backend
+      return 'http://172.20.10.8:8000/api/v1';
+    }
+    
+    // Default fallback for Windows desktop / Web testing
     return 'http://localhost:8000/api/v1';
   }
 

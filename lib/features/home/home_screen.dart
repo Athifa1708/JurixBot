@@ -80,7 +80,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   _buildQuickAction(context, l10n.askJurixbotAction, Icons.chat, '/chat'),
                   _buildQuickAction(context, l10n.analyzeDocument, Icons.document_scanner, '/analyze'),
-                  _buildQuickAction(context, l10n.makeComplaint, Icons.edit_document, '/draft'),
+                  _buildQuickAction(context, l10n.makeComplaint, Icons.edit_document, '/complaints/submit'),
                   _buildQuickAction(context, l10n.knowRights, Icons.shield, '/rights'),
                 ],
               ),

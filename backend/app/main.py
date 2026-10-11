@@ -8,7 +8,8 @@ from app.db.database import get_db, AsyncSessionLocal, engine, Base
 from app.db.models.user import User
 # Import models to ensure they are registered with Base metadata
 from app.db.models.chat import ChatSession, ChatMessage
-from app.api.v1 import health, auth, chat
+from app.db.models.complaint import Complaint, ComplaintStatusHistory
+from app.api.v1 import health, auth, chat, complaints
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -50,3 +51,4 @@ if settings.CORS_ORIGINS:
 app.include_router(health.router, tags=["health"])
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
 app.include_router(chat.router, prefix=f"{settings.API_V1_STR}/chat", tags=["chat"])
+app.include_router(complaints.router, prefix=f"{settings.API_V1_STR}/complaints", tags=["complaints"])

@@ -74,7 +74,7 @@ class ExploreScreen extends StatelessWidget {
                 description: l10n.documentsAndComplaintsDesc,
                 items: [
                   _CategoryItem(l10n.analyzeDocument, Icons.document_scanner, '/analyze'),
-                  _CategoryItem(l10n.draftComplaint, Icons.edit_document, '/draft'),
+                  _CategoryItem(l10n.draftComplaint, Icons.edit_document, '/complaints/submit'),
                   _CategoryItem(l10n.explainNotice, Icons.receipt_long, '/analyze'),
                 ],
               ),

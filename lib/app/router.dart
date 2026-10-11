@@ -2,6 +2,11 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../features/auth/login_screen.dart';
+import '../features/auth/register_screen.dart';
+import '../features/complaints/submit_complaint_screen.dart';
+import '../features/complaints/complaints_list_screen.dart';
+import '../features/complaints/complaint_detail_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/home/main_scaffold.dart';
 import '../features/onboarding/onboarding_screen.dart';
@@ -35,6 +40,14 @@ final router = GoRouter(
     GoRoute(
       path: '/language-selection',
       builder: (context, state) => const LanguageSelectionScreen(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegisterScreen(),
     ),
     // ShellRoute wraps routes in the MainScaffold (Bottom Nav)
     ShellRoute(
@@ -90,6 +103,21 @@ final router = GoRouter(
           path: '/risk',
           builder: (context, state) => const RiskScreen(),
         ),
+        GoRoute(
+          path: '/complaints',
+          builder: (context, state) => const ComplaintsListScreen(),
+        ),
+        GoRoute(
+          path: '/complaints/submit',
+          builder: (context, state) => const SubmitComplaintScreen(),
+        ),
+        GoRoute(
+          path: '/complaints/:id',
+          builder: (context, state) {
+            final id = int.parse(state.pathParameters['id']!);
+            return ComplaintDetailScreen(complaintId: id);
+          },
+        ),
       ],
     ),
   ],
@@ -122,8 +150,14 @@ class _SplashScreenWrapperState extends State<SplashScreenWrapper> {
       return;
     }
 
-    // Skip auth completely, go straight to home
-    context.go('/home');
+    final token = await SecureStorage.getToken();
+    if (mounted) {
+      if (token != null) {
+        context.go('/home');
+      } else {
+        context.go('/login');
+      }
+    }
   }
 
   @override
